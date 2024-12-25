@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino Game</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .score {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .game-area {
+            position: relative;
+            width: 800px;
+            height: 300px;
+            background-color: #e0e0e0;
+            border: 2px solid #000;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .dino {
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            width: 50px;
+            height: 50px;
+            background: url('vk.png') no-repeat center center / cover;
+        }
+        .obstacle {
+            position: absolute;
+            bottom: 0;
+            right: -50px;
+            width: 50px;
+            height: 50px;
+            background: url('cp.png') no-repeat center center / cover;
+        }
+        .jump-button, .replay-button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 10px;
+        }
+        .jump-button:hover, .replay-button:hover {
+            background-color: #218838;
+        }
+        .replay-button {
+            display: none;
+        }
+        @media (max-width: 850px) {
+            .game-area {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="game-area">
+        <div class="dino"></div>
+        <div class="obstacle"></div>
+    </div>
+    <button class="jump-button" id="jumpButton">Jump</button>
+    <button class="replay-button" id="replayButton">Replay</button>
+
+    <script>
+        const dino = document.querySelector('.dino');
+        const obstacle = document.querySelector('.obstacle');
+        const jumpButton = document.getElementById('jumpButton');
+        const replayButton = document.getElementById('replayButton');
+        const scoreDisplay = document.getElementById('score');
+
+        let isJumping = false;
+        let isGameOver = false;
+        let score = 0;
+        let obstacleInterval;
+
+        function jump() {
+            if (isJumping) return;
+            isJumping = true;
+            let position = 0;
+
+            let upInterval = setInterval(() => {
+                if (position >= 120) { // Moderate jump height
+                    clearInterval(upInterval);
+                    // Fall down
+                    let downInterval = setInterval(() => {
+                        if (position <= 0) {
+                            clearInterval(downInterval);
+                            isJumping = false;
+                        }
+                        position -= 5; // Moderate descent speed
+                        dino.style.bottom = position + 'px';
+                    }, 20); // Smooth interval
+                }
+                position += 5; // Moderate ascent speed
+                dino.style.bottom = position + 'px';
+            }, 20); // Smooth interval
+        }
+
+        function moveObstacle() {
+            let obstaclePosition = 800;
+
+            obstacleInterval = setInterval(() => {
+                if (obstaclePosition < -50) {
+                    obstaclePosition = 800; // Reset position
+                    score++; // Increment score for avoiding the obstacle
+                    scoreDisplay.textContent = score;
+                } else {
+                    obstaclePosition -= 10;
+                    obstacle.style.left = obstaclePosition + 'px';
+
+                    // Collision Detection
+                    const dinoBottom = parseInt(window.getComputedStyle(dino).bottom);
+                    if (obstaclePosition > 50 && obstaclePosition < 90 && dinoBottom < 50) {
+                        gameOver();
+                    }
+                }
+            }, 20);
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            clearInterval(obstacleInterval);
+            replayButton.style.display = 'block'; // Show replay button
+            alert('Game Over! Your score: ' + score);
+        }
+
+        function restartGame() {
+            score = 0;
+            scoreDisplay.textContent = score;
+            replayButton.style.display = 'none'; // Hide replay button
+            isGameOver = false;
+            obstacle.style.left = '800px'; // Reset obstacle position
+            moveObstacle(); // Restart obstacle movement
+        }
+
+        // Instant Response for Jump Button
+        jumpButton.addEventListener('click', jump);
+
+        // Event Listener for Replay Button
+        replayButton.addEventListener('click', restartGame);
+
+        // Start the game
+        moveObstacle();
+    </script>
+</body>
+</html>
