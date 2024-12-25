@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCB CUP</title>
+    <title>Flappy Bird Game</title>
     <style>
         body {
             margin: 0;
@@ -63,8 +63,21 @@
         }
         .popup .message {
             font-size: 30px;
-            color: red;  /* Change color to red */
+            color: red;
             margin-bottom: 30px;
+        }
+        .jump-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #ff5722;
+            color: white;
+            font-size: 20px;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 10;
         }
     </style>
 </head>
@@ -72,6 +85,7 @@
 
 <canvas id="gameCanvas"></canvas>
 <button id="replayBtn" class="replay-btn">Replay</button>
+<button id="jumpBtn" class="jump-btn">Jump</button>
 <div class="score" id="score">Score: 0</div>
 
 <div class="popup" id="popup">
@@ -83,6 +97,7 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const replayBtn = document.getElementById('replayBtn');
+    const jumpBtn = document.getElementById('jumpBtn');
     const scoreDiv = document.getElementById('score');
     const popup = document.getElementById('popup');
     const popupImage = document.getElementById('popupImage');
@@ -100,8 +115,8 @@
         width: 50,
         height: 50,
         velocity: 0,
-        gravity: 0.2,
-        lift: -5,  // Slightly higher jump
+        gravity: 0.6,
+        lift: -5,
     };
 
     const tubes = [];
@@ -133,15 +148,12 @@
             showReplayButton();
         }
 
-        // Draw bird
         ctx.drawImage(birdImage, bird.x, bird.y, bird.width, bird.height);
 
-        // Update and draw tubes
         for (let i = tubes.length - 1; i >= 0; i--) {
             let tube = tubes[i];
             tube.x -= tube.speed;
 
-            // Check for collision with tubes
             if (bird.x + bird.width > tube.x && bird.x < tube.x + tube.width) {
                 if (bird.y < tube.top || bird.y + bird.height > tube.bottom) {
                     gameOver = true;
@@ -149,7 +161,6 @@
                 }
             }
 
-            // Remove off-screen tubes
             if (tube.x + tube.width < 0) {
                 tubes.splice(i, 1);
                 score++;
@@ -160,13 +171,11 @@
             }
         }
 
-        // Stop game after 18 tubes
         if (completedTubes === 18) {
             gameOver = true;
             showPopup();
         }
 
-        // Create new tube every 2000ms
         if (tubes.length === 0 || tubes[tubes.length - 1].x < canvas.width - 300) {
             createTube();
         }
@@ -201,6 +210,7 @@
     }
 
     replayBtn.addEventListener('click', restartGame);
+    jumpBtn.addEventListener('click', jump);
     window.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
             jump();
@@ -213,7 +223,6 @@
         };
     };
 
-    // Adjust canvas size on window resize
     window.addEventListener('resize', () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
