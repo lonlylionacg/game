@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            background-color: #87CEEB;
+        }
+
+        #replayButton {
+            display: none;
+            position: absolute;
+            left: 50%;
+            top: 60%;
+            transform: translate(-50%, -50%);
+            padding: 10px 20px;
+            font-size: 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #replayButton:hover {
+            background-color: #45a049;
+        }
+
+        #winMessage {
+            display: none;
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            transform: translate(-50%, -50%);
+            font-size: 36px;
+            color: green;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <button id="replayButton">Replay</button>
+    <div id="winMessage">
+        <p>You have won the game!</p>
+        <img src="DR.STEPHEN STRANGE.jpg" alt="Win Image" style="max-width: 100%; height: auto;">
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const replayButton = document.getElementById('replayButton');
+        const winMessage = document.getElementById('winMessage');
+
+        // Adjust canvas to fit the screen
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Load images
+        const birdImg = new Image();
+        birdImg.src = 'download.png';
+
+        const tubeImg = new Image();
+        tubeImg.src = '123.png';
+
+        // Game variables
+        let bird;
+        let pipes;
+        let score;
+        let isGameOver;
+
+        function resetGame() {
+            bird = {
+                x: 100,
+                y: 150,
+                width: 50,
+                height: 50,
+                gravity: 0.6,
+                lift: -12,
+                velocity: 0
+            };
+
+            pipes = [];
+            score = 0;
+            isGameOver = false;
+
+            createPipe();
+            replayButton.style.display = 'none';
+            winMessage.style.display = 'none';
+            gameLoop();
+        }
+
+        // Controls
+        document.addEventListener('keydown', () => {
+            if (!isGameOver) {
+                bird.velocity += bird.lift;
+            }
+        });
+
+        replayButton.addEventListener('click', resetGame);
+
+        // Create pipes
+        function createPipe() {
+            const pipeHeight = Math.random() * (canvas.height - 250 - 100) + 50;
+            pipes.push({
+                x: canvas.width,
+                y: 0,
+                height: pipeHeight
+            });
+        }
+
+        // Update game state
+        function update() {
+            if (isGameOver) return;
+
+            // Update bird position
+            bird.velocity += bird.gravity;
+            bird.velocity *= 0.9; // Smooth the jump
+            bird.y += bird.velocity;
+
+            if (bird.y + bird.height > canvas.height || bird.y < 0) {
+                gameOver();
+            }
+
+            // Update pipes
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                pipes[i].x -= 5;
+
+                // Check for collision
+                if (
+                    bird.x < pipes[i].x + 60 &&
+                    bird.x + bird.width > pipes[i].x &&
+                    (bird.y < pipes[i].height || bird.y + bird.height > pipes[i].height + 250)
+                ) {
+                    gameOver();
+                    return; // End the game immediately on collision
+                }
+
+                // Remove off-screen pipes
+                if (pipes[i].x + 60 < 0) {
+                    pipes.splice(i, 1);
+                    score++;
+                }
+            }
+
+            // Add new pipes
+            if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 300) {
+                createPipe();
+            }
+
+            // Check win condition
+            if (score >= 20) {
+                winGame();
+            }
+        }
+
+        // Draw game elements
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw bird
+            ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
+
+            // Draw pipes
+            pipes.forEach(pipe => {
+                ctx.drawImage(tubeImg, pipe.x, pipe.y, 60, pipe.height);
+                ctx.drawImage(tubeImg, pipe.x, pipe.height + 250, 60, canvas.height - pipe.height - 250);
+            });
+
+            // Draw score
+            ctx.fillStyle = 'black';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText(`Score: ${score}`, canvas.width - 10, 30);
+        }
+
+        // Game over
+        function gameOver() {
+            isGameOver = true;
+            ctx.fillStyle = 'red';
+            ctx.font = '48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
+            replayButton.style.display = 'block';
+        }
+
+        // Win the game
+        function winGame() {
+            isGameOver = true;
+            winMessage.style.display = 'block';
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+
+            if (!isGameOver) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Start game
+        birdImg.onload = () => {
+            tubeImg.onload = () => {
+                resetGame();
+            };
+        };
+    </script>
+</body>
+</html>
