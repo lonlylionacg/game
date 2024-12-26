@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CUP CATCH</title>
+    <title>Subasub Game</title>
     <style>
         body {
             margin: 0;
@@ -106,7 +106,7 @@
 <body>
     <div id="gameCanvas">
         <div id="scoreBoard">Score: 0</div>
-        <div id="message">TAKE 3 TROPHY TO WIN THE RCB</div>
+        <div id="message">TAKE 18 TROPHY TO WIN THE RCB</div>
         <div class="character" id="character" style="top: 50%; left: 50%;"></div>
         <div class="coin" id="coin" style="top: 20%; left: 30%;"></div>
     </div>
@@ -137,13 +137,12 @@
         const controls = document.getElementById('controls');
         const step = 10;
         let score = 0;
-        let moveInterval = null;
 
         function moveCharacter(direction) {
             const rect = character.getBoundingClientRect();
             const canvasRect = document.getElementById('gameCanvas').getBoundingClientRect();
 
-            if (score >= 3) return; // Stop movement if the game is over
+            if (score >= 18) return; // Stop movement if the game is over
 
             switch (direction) {
                 case 'ArrowUp':
@@ -199,23 +198,10 @@
             }
         }
 
-        function startMovement(direction) {
-            if (moveInterval) return; // Prevent multiple intervals
-            moveInterval = setInterval(() => moveCharacter(direction), 100);
-        }
-
-        function stopMovement() {
-            clearInterval(moveInterval);
-            moveInterval = null;
-        }
-
-        document.getElementById('upBtn').addEventListener('mousedown', () => startMovement('ArrowUp'));
-        document.getElementById('downBtn').addEventListener('mousedown', () => startMovement('ArrowDown'));
-        document.getElementById('leftBtn').addEventListener('mousedown', () => startMovement('ArrowLeft'));
-        document.getElementById('rightBtn').addEventListener('mousedown', () => startMovement('ArrowRight'));
-
-        document.addEventListener('mouseup', stopMovement);
-        document.addEventListener('mouseleave', stopMovement);
+        document.getElementById('upBtn').addEventListener('click', () => moveCharacter('ArrowUp'));
+        document.getElementById('downBtn').addEventListener('click', () => moveCharacter('ArrowDown'));
+        document.getElementById('leftBtn').addEventListener('click', () => moveCharacter('ArrowLeft'));
+        document.getElementById('rightBtn').addEventListener('click', () => moveCharacter('ArrowRight'));
 
         window.addEventListener('keydown', (event) => moveCharacter(event.key));
     </script>
