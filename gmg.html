@@ -137,7 +137,6 @@
         const controls = document.getElementById('controls');
         const step = 10;
         let score = 0;
-        let moveInterval = null;
 
         function moveCharacter(direction) {
             const rect = character.getBoundingClientRect();
@@ -148,26 +147,30 @@
             switch (direction) {
                 case 'ArrowUp':
                     if (rect.top > canvasRect.top) {
-                        character.style.top = rect.top - step + 'px';
+                        character.style.top = rect.top - canvasRect.top - step + 'px';
                     }
                     break;
                 case 'ArrowDown':
                     if (rect.bottom < canvasRect.bottom) {
-                        character.style.top = rect.top + step + 'px';
+                        character.style.top = rect.top - canvasRect.top + step + 'px';
                     }
                     break;
                 case 'ArrowLeft':
                     if (rect.left > canvasRect.left) {
-                        character.style.left = rect.left - step + 'px';
+                        character.style.left = rect.left - canvasRect.left - step + 'px';
                     }
                     break;
                 case 'ArrowRight':
                     if (rect.right < canvasRect.right) {
-                        character.style.left = rect.left + step + 'px';
+                        character.style.left = rect.left - canvasRect.left + step + 'px';
                     }
                     break;
             }
 
+            checkCoinCollision();
+        }
+
+        function checkCoinCollision() {
             const charRect = character.getBoundingClientRect();
             const coinRect = coin.getBoundingClientRect();
             if (
@@ -176,44 +179,29 @@
                 charRect.top < coinRect.bottom &&
                 charRect.bottom > coinRect.top
             ) {
-                // Reset and play the sound
-                coinSound.currentTime = 0; // Reset audio to the beginning
+                coinSound.currentTime = 0;
                 coinSound.play();
 
-                // Increment the score
                 score++;
                 scoreBoard.textContent = `Score: ${score}`;
 
                 if (score === 18) {
                     setTimeout(() => {
                         popup.style.display = 'block';
-                        controls.style.display = 'none'; // Hide the controls
-                    }, 500); // Delay to show the popup after 18 score
+                        controls.style.display = 'none';
+                    }, 500);
                 }
 
-                // Move the coin to a random position
+                const canvasRect = document.getElementById('gameCanvas').getBoundingClientRect();
                 coin.style.top = Math.random() * (canvasRect.height - 30) + 'px';
                 coin.style.left = Math.random() * (canvasRect.width - 30) + 'px';
             }
         }
 
-        function startMovement(direction) {
-            if (moveInterval) return; // Prevent multiple intervals
-            moveInterval = setInterval(() => moveCharacter(direction), 100);
-        }
-
-        function stopMovement() {
-            clearInterval(moveInterval);
-            moveInterval = null;
-        }
-
-        document.getElementById('upBtn').addEventListener('mousedown', () => startMovement('ArrowUp'));
-        document.getElementById('downBtn').addEventListener('mousedown', () => startMovement('ArrowDown'));
-        document.getElementById('leftBtn').addEventListener('mousedown', () => startMovement('ArrowLeft'));
-        document.getElementById('rightBtn').addEventListener('mousedown', () => startMovement('ArrowRight'));
-
-        document.addEventListener('mouseup', stopMovement);
-        document.addEventListener('mouseleave', stopMovement);
+        document.getElementById('upBtn').addEventListener('click', () => moveCharacter('ArrowUp'));
+        document.getElementById('downBtn').addEventListener('click', () => moveCharacter('ArrowDown'));
+        document.getElementById('leftBtn').addEventListener('click', () => moveCharacter('ArrowLeft'));
+        document.getElementById('rightBtn').addEventListener('click', () => moveCharacter('ArrowRight'));
 
         window.addEventListener('keydown', (event) => moveCharacter(event.key));
     </script>
