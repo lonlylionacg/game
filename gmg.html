@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subasub Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #gameCanvas {
+            display: block;
+            background-color: #87ceeb; /* Light blue background */
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        .character {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: url('vk.png') no-repeat center center;
+            background-size: contain;
+        }
+        .coin {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: url('iplc.png') no-repeat center center;
+            background-size: contain;
+        }
+        #scoreBoard {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: black;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            text-align: center;
+        }
+        #popup img {
+            width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        #popup h1 {
+            color: red;
+            font-size: 36px;
+            margin: 0;
+        }
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .arrow-row {
+            display: flex;
+        }
+        .arrow-btn {
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+            background-color: #ffffff;
+            border: 2px solid #000000;
+            border-radius: 5px;
+            background-size: cover; /* Ensure the image fits the button */
+            background-repeat: no-repeat;
+            cursor: pointer;
+        }
+        .arrow-btn:hover {
+            background-color: #cccccc;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameCanvas">
+        <div id="scoreBoard">Score: 0</div>
+        <div id="message">TAKE 18 TROPHY TO WIN THE RCB</div>
+        <div class="character" id="character" style="top: 50%; left: 50%;"></div>
+        <div class="coin" id="coin" style="top: 20%; left: 30%;"></div>
+    </div>
+    <audio id="coinSound" src="BAD BOY.mp3"></audio>
+
+    <div id="popup">
+        <img src="tpy.jpg" alt="Trophy Image">
+        <h1>RCB WON THE TROPHY</h1>
+    </div>
+
+    <div id="controls">
+        <div class="arrow-row">
+            <button class="arrow-btn" id="upBtn" style="background-image: url('top.png');"></button>
+        </div>
+        <div class="arrow-row">
+            <button class="arrow-btn" id="leftBtn" style="background-image: url('left.png');"></button>
+            <button class="arrow-btn" id="downBtn" style="background-image: url('down.jpg');"></button>
+            <button class="arrow-btn" id="rightBtn" style="background-image: url('right.png');"></button>
+        </div>
+    </div>
+
+    <script>
+        const character = document.getElementById('character');
+        const coin = document.getElementById('coin');
+        const coinSound = document.getElementById('coinSound');
+        const scoreBoard = document.getElementById('scoreBoard');
+        const popup = document.getElementById('popup');
+        const controls = document.getElementById('controls');
+        const step = 10;
+        let score = 0;
+        let moveInterval = null;
+
+        function moveCharacter(direction) {
+            const rect = character.getBoundingClientRect();
+            const canvasRect = document.getElementById('gameCanvas').getBoundingClientRect();
+
+            if (score >= 18) return; // Stop movement if the game is over
+
+            switch (direction) {
+                case 'ArrowUp':
+                    if (rect.top > canvasRect.top) {
+                        character.style.top = rect.top - step + 'px';
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (rect.bottom < canvasRect.bottom) {
+                        character.style.top = rect.top + step + 'px';
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (rect.left > canvasRect.left) {
+                        character.style.left = rect.left - step + 'px';
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (rect.right < canvasRect.right) {
+                        character.style.left = rect.left + step + 'px';
+                    }
+                    break;
+            }
+
+            const charRect = character.getBoundingClientRect();
+            const coinRect = coin.getBoundingClientRect();
+            if (
+                charRect.left < coinRect.right &&
+                charRect.right > coinRect.left &&
+                charRect.top < coinRect.bottom &&
+                charRect.bottom > coinRect.top
+            ) {
+                // Reset and play the sound
+                coinSound.currentTime = 0; // Reset audio to the beginning
+                coinSound.play();
+
+                // Increment the score
+                score++;
+                scoreBoard.textContent = `Score: ${score}`;
+
+                if (score === 18) {
+                    setTimeout(() => {
+                        popup.style.display = 'block';
+                        controls.style.display = 'none'; // Hide the controls
+                    }, 500); // Delay to show the popup after 18 score
+                }
+
+                // Move the coin to a random position
+                coin.style.top = Math.random() * (canvasRect.height - 30) + 'px';
+                coin.style.left = Math.random() * (canvasRect.width - 30) + 'px';
+            }
+        }
+
+        function startMovement(direction) {
+            if (moveInterval) return; // Prevent multiple intervals
+            moveInterval = setInterval(() => moveCharacter(direction), 100);
+        }
+
+        function stopMovement() {
+            clearInterval(moveInterval);
+            moveInterval = null;
+        }
+
+        document.getElementById('upBtn').addEventListener('mousedown', () => startMovement('ArrowUp'));
+        document.getElementById('downBtn').addEventListener('mousedown', () => startMovement('ArrowDown'));
+        document.getElementById('leftBtn').addEventListener('mousedown', () => startMovement('ArrowLeft'));
+        document.getElementById('rightBtn').addEventListener('mousedown', () => startMovement('ArrowRight'));
+
+        document.addEventListener('mouseup', stopMovement);
+        document.addEventListener('mouseleave', stopMovement);
+
+        window.addEventListener('keydown', (event) => moveCharacter(event.key));
+    </script>
+</body>
+</html>
