@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subasub Game</title>
+    <title>Cup Game</title>
     <style>
         body {
             margin: 0;
@@ -106,7 +106,7 @@
 <body>
     <div id="gameCanvas">
         <div id="scoreBoard">Score: 0</div>
-        <div id="message">TAKE 18 TROPHY TO WIN THE RCB</div>
+        <div id="message">TAKE 3 TROPHY TO WIN THE RCB</div>
         <div class="character" id="character" style="top: 50%; left: 50%;"></div>
         <div class="coin" id="coin" style="top: 20%; left: 30%;"></div>
     </div>
@@ -142,7 +142,7 @@
             const rect = character.getBoundingClientRect();
             const canvasRect = document.getElementById('gameCanvas').getBoundingClientRect();
 
-            if (score >= 18) return; // Stop movement if the game is over
+            if (score >= 3) return; // Stop movement if the game is over
 
             switch (direction) {
                 case 'ArrowUp':
