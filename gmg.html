@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CUP</title>
+    <title>Subasub Game</title>
     <style>
         body {
             margin: 0;
@@ -198,10 +198,20 @@
             }
         }
 
-        document.getElementById('upBtn').addEventListener('click', () => moveCharacter('ArrowUp'));
-        document.getElementById('downBtn').addEventListener('click', () => moveCharacter('ArrowDown'));
-        document.getElementById('leftBtn').addEventListener('click', () => moveCharacter('ArrowLeft'));
-        document.getElementById('rightBtn').addEventListener('click', () => moveCharacter('ArrowRight'));
+        const buttons = {
+            upBtn: 'ArrowUp',
+            downBtn: 'ArrowDown',
+            leftBtn: 'ArrowLeft',
+            rightBtn: 'ArrowRight'
+        };
+
+        Object.keys(buttons).forEach((btnId) => {
+            const button = document.getElementById(btnId);
+            const direction = buttons[btnId];
+
+            button.addEventListener('touchstart', () => moveCharacter(direction));
+            button.addEventListener('click', () => moveCharacter(direction));
+        });
 
         window.addEventListener('keydown', (event) => moveCharacter(event.key));
     </script>
